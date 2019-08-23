@@ -1,0 +1,22 @@
+steps:
+  #- name: 'gcr.io/cloud-builders/docker'
+  #  args:
+  #  - 'build'
+  #  - '-t'
+  #  - 'gcr.io/kustomize-search/crawler'
+  #  - '-f'
+  #  - 'cmd/crawler/Dockerfile'
+  #  - '.'
+- name: 'gcr.io/cloud-builders/docker'
+  args:
+  - 'build'
+  - '-t'
+  - 'gcr.io/kustomize-search/backend'
+  - '-f'
+  - 'cmd/backend/Dockerfile'
+  - '.'
+
+
+images:
+  #- 'gcr.io/kustomize-search/crawler'
+- 'gcr.io/kustomize-search/backend'
