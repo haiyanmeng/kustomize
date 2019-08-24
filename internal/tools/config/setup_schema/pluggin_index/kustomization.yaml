@@ -1,0 +1,21 @@
+resources:
+- ../base
+
+namePrefix: "pluggin-"
+
+configmapGenerator:
+- name: elasticsearch-schema-config
+  files:
+  - index-config=es_index_config.json
+
+patches:
+- target:
+    kind: Job
+    name: setup-es-schema
+  patch: |-
+    - op: add
+      path: /spec/template/spec/containers/0/env/0/valueFrom/configMapKeyRef/key
+      value: pluggin-index-name
+    - op: replace
+      path: /spec/template/spec/containers/0/env/1/valueFrom/configMapKeyRef/name
+      value: pluggin-elasticsearch-schema-config

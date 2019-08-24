@@ -1,0 +1,3 @@
+resources:
+- ../../base
+- setup_schema_job.yaml

@@ -1,0 +1,3 @@
+resources:
+- kustomization_index
+- pluggin_index

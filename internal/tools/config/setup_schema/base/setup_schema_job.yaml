@@ -1,0 +1,26 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: setup-es-schema
+spec:
+  template:
+    spec:
+      restartPolicy: OnFailure
+      containers:
+      - name: setup-schema
+        image: gcr.io/kustomize-search/setup_schema:latest
+        env:
+        - name: INDEX_NAME
+          valueFrom:
+            configMapKeyRef:
+              name: elasticsearch-config
+        - name: INDEX_CONFIGURATION
+          valueFrom:
+            configMapKeyRef:
+              name: elasticsearch-config
+              key: index-config
+        - name: DATABASE_URL
+          valueFrom:
+            configMapKeyRef:
+              name: elasticsearch-config
+              key: es-url

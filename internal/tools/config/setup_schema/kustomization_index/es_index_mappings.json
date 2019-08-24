@@ -1,0 +1,42 @@
+{
+  "settings": {
+    "index": {
+      "analysis": {
+
+        "analyzer": {
+          "ngram_word_analyzer": {
+            "tokenizer": "ngram_word_tokenizer",
+            "filter": "lowercase",
+            "char_filter": ["deliminator_set"]
+          },
+          "uniform_keyword": {
+            "tokenizer": "keyword",
+            "filter": "lowercase"
+          }
+        },
+
+        "tokenizer": {
+          "ngram_word_tokenizer": {
+            "type": "ngram",
+            "min_ngram": 3,
+            "max_ngram": 4,
+            "token_chars": [
+              "letter",
+              "digit"
+            ]
+          }
+        },
+
+        "char_filter": {
+          "deliminator_set": {
+            "type": "mapping",
+            "mappings": [
+              ". => :",
+              "/ => :"
+            ]
+          }
+        }
+      }
+    }
+  }
+}

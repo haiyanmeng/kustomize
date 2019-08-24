@@ -1,0 +1,21 @@
+resources:
+- ../base
+
+namePrefix: "kustomization-"
+
+configmapGenerator:
+- name: elasticsearch-schema-config
+  files:
+  - index-config=es_index_config.json
+
+patches:
+- target:
+    kind: Job
+    name: setup-es-schema
+  patch: |-
+    - op: add
+      path: /spec/template/spec/containers/0/env/0/valueFrom/configMapKeyRef/key
+      value: kustomize-index-name
+    - op: replace
+      path: /spec/template/spec/containers/0/env/1/valueFrom/configMapKeyRef/name
+      value: kustomization-elasticsearch-schema-config

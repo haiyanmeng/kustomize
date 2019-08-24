@@ -4,3 +4,6 @@ configmapGenerator:
   - es-url="http://esbasic-master:9200"
   - kustomize-index-name="kustomize"
   - plugin-index-name="plugin"
+- name: redis-keystore
+  literals:
+  - keystore-url="redis://redis-docs-keystore:6379"
