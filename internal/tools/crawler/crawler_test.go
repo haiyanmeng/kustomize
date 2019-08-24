@@ -18,9 +18,13 @@ type testCrawler struct {
 	err  error
 }
 
+func (c testCrawler) Match(string) bool {
+	return true
+}
+
 // Crawl implements the Crawler interface for testing.
 func (c testCrawler) Crawl(ctx context.Context,
-	output chan<- *doc.KustomizationDocument) error {
+	output chan<- CrawlerDocument) error {
 
 	for i := range c.docs {
 		output <- &c.docs[i]
@@ -54,17 +58,17 @@ func TestCrawlerRunner(t *testing.T) {
 			tc: []Crawler{
 				testCrawler{
 					docs: []doc.KustomizationDocument{
-						{FilePath: "crawler1/doc1"},
-						{FilePath: "crawler1/doc2"},
-						{FilePath: "crawler1/doc3"},
+						{Document: doc.Document{FilePath: "crawler1/doc1"}},
+						{Document: doc.Document{FilePath: "crawler1/doc2"}},
+						{Document: doc.Document{FilePath: "crawler1/doc3"}},
 					},
 				},
 				testCrawler{err: errors.New("crawler2")},
 				testCrawler{},
 				testCrawler{
 					docs: []doc.KustomizationDocument{
-						{FilePath: "crawler4/doc1"},
-						{FilePath: "crawler4/doc2"},
+						{Document: doc.Document{FilePath: "crawler4/doc1"}},
+						{Document: doc.Document{FilePath: "crawler4/doc2"}},
 					},
 					err: errors.New("crawler4"),
 				},
@@ -76,17 +80,17 @@ func TestCrawlerRunner(t *testing.T) {
 				errors.New("crawler4"),
 			},
 			docs: sortableDocs{
-				{FilePath: "crawler1/doc1"},
-				{FilePath: "crawler1/doc2"},
-				{FilePath: "crawler1/doc3"},
-				{FilePath: "crawler4/doc1"},
-				{FilePath: "crawler4/doc2"},
+				{Document: doc.Document{FilePath: "crawler1/doc1"}},
+				{Document: doc.Document{FilePath: "crawler1/doc2"}},
+				{Document: doc.Document{FilePath: "crawler1/doc3"}},
+				{Document: doc.Document{FilePath: "crawler4/doc1"}},
+				{Document: doc.Document{FilePath: "crawler4/doc2"}},
 			},
 		},
 	}
 
 	for _, test := range tests {
-		output := make(chan *doc.KustomizationDocument)
+		output := make(chan CrawlerDocument)
 		wg := sync.WaitGroup{}
 		wg.Add(1)
 
@@ -95,8 +99,9 @@ func TestCrawlerRunner(t *testing.T) {
 			defer close(output)
 			defer wg.Done()
 
-			errs := CrawlerRunner(context.Background(), output,
-				test.tc)
+			seed := CrawlerSeed{}
+			errs := CrawlerRunner(context.Background(), seed,
+				output, test.tc)
 
 			// Check that errors are returned as they should be.
 			if !reflect.DeepEqual(errs, test.errs) {
@@ -108,8 +113,13 @@ func TestCrawlerRunner(t *testing.T) {
 
 		// Iterate over the output channel of Crawler runner.
 		returned := make(sortableDocs, 0, len(test.docs))
-		for doc := range output {
-			returned = append(returned, *doc)
+		for o := range output {
+			d, ok := o.(*doc.KustomizationDocument)
+			if !ok || d == nil {
+				t.Errorf("%T not expected type (%T)",
+					o, d)
+			}
+			returned = append(returned, *d)
 		}
 
 		// Check that all documents are received.
